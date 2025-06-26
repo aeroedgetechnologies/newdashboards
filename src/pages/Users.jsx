@@ -13,19 +13,24 @@ const Users = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get('/api/admin/users', {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      setData(res.data);
-    } catch {
-      message.error('Failed to fetch users');
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const token = getToken();
+    console.log('Sending token:', token);  // Log token here
+
+    const res = await axios.get('/api/admin/users', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setData(res.data);
+  } catch (error) {
+    console.error('Fetch error:', error.response?.data || error.message);
+    message.error('Failed to fetch users');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => { fetchData(); }, []);
 

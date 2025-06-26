@@ -14,7 +14,7 @@ const ThemeSwitcher = ({ children }) => {
     <ConfigProvider theme={{
       algorithm: theme === 'dark' ? darkAlgorithm : defaultAlgorithm,
     }}>
-      <div style={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}>
+      <div style={{ position: 'fixed', top: 16, right: 160, zIndex: 1000 }}>
         <Button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
           Switch to {theme === 'dark' ? 'Light' : 'Dark'} Mode
         </Button>
