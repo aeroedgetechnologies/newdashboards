@@ -6,8 +6,7 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      // Proxy all /api requests to backend
-      '/api': 'http://localhost:5000',
+      '/api': 'https://h-x6ti.onrender.com',
     },
   },
 });
