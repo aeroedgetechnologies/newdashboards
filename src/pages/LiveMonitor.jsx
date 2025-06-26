@@ -10,7 +10,7 @@ const LiveMonitor = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/live/active', {
+      const res = await axios.get('https://h-x6ti.onrender.com/api/live/active', {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       setData(res.data);
@@ -25,7 +25,7 @@ const LiveMonitor = () => {
 
   const handleForceStop = async (id) => {
     try {
-      await axios.post(`/api/live/admin/${id}/reject`, {}, {
+      await axios.post(`https://h-x6ti.onrender.com/api/live/admin/${id}/reject`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       message.success('Stream force-stopped');

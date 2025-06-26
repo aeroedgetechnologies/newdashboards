@@ -11,7 +11,7 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const res = await axios.post('/api/admin/login', values);
+      const res = await axios.post('https://h-x6ti.onrender.com/api/admin/login', values);
       setToken(res.data.token);
       message.success('Login successful!');
       navigate('/');

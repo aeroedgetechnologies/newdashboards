@@ -11,7 +11,7 @@ const WalletRequests = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/wallet-requests', {
+      const res = await axios.get('https://h-x6ti.onrender.com/api/admin/wallet-requests', {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       setData(res.data);
@@ -26,7 +26,7 @@ const WalletRequests = () => {
 
   const handleAction = async (id, action) => {
     try {
-      await axios.post(`/api/admin/wallet-requests/${id}/${action}`, {}, {
+      await axios.post(`https://h-x6ti.onrender.com/api/admin/wallet-requests/${id}/${action}`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       message.success(`Request ${action}d`);

@@ -19,7 +19,7 @@ const fetchData = async () => {
     const token = getToken();
     console.log('Sending token:', token);  // Log token here
 
-    const res = await axios.get('/api/admin/users', {
+    const res = await axios.get('https://h-x6ti.onrender.com/api/admin/users', {
       headers: { Authorization: `Bearer ${token}` },
     });
     setData(res.data);
@@ -36,7 +36,7 @@ const fetchData = async () => {
 
   const handleBlock = async (id) => {
     try {
-      await axios.post(`/api/admin/users/${id}/block`, {}, {
+      await axios.post(`https://h-x6ti.onrender.com/api/admin/users/${id}/block`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       message.success('User status updated');

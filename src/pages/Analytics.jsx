@@ -11,7 +11,7 @@ const Analytics = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('/api/admin/analytics', {
+        const res = await axios.get('https://h-x6ti.onrender.com/api/admin/analytics', {
           headers: { Authorization: `Bearer ${getToken()}` },
         });
         setData(res.data);

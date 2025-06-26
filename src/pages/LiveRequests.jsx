@@ -11,7 +11,7 @@ const LiveRequests = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/live-requests', {
+      const res = await axios.get('https://h-x6ti.onrender.com/api/admin/live-requests', {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       setData(res.data);
@@ -26,7 +26,7 @@ const LiveRequests = () => {
 
   const handleAction = async (id, action) => {
     try {
-      await axios.post(`/api/live/admin/${id}/${action}`, {}, {
+      await axios.post(`https://h-x6ti.onrender.com/api/live/admin/${id}/${action}`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       message.success(`Request ${action}d`);

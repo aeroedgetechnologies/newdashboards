@@ -10,7 +10,7 @@ const AuditLogs = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/admin/audit-logs', {
+      const res = await axios.get('https://h-x6ti.onrender.com/api/admin/audit-logs', {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       setData(res.data);
