@@ -5,7 +5,7 @@ import { useTheme } from './ThemeSwitcher';
 
 const { Header } = Layout;
 
-const HeaderBar = ({ onToggleSidebar, mobile, sidebarOpen }) => {
+const HeaderBar = ({ onToggleSidebar, mobile, sidebarOpen, onLogout }) => {
   const { theme, setTheme } = useTheme();
   return (
     <Header
@@ -37,7 +37,7 @@ const HeaderBar = ({ onToggleSidebar, mobile, sidebarOpen }) => {
           {theme === 'dark' ? 'Light' : 'Dark'} Mode
         </Button>
         {!mobile && (
-          <Button type="primary" onClick={window.handleLogout} style={{ minWidth: 80 }}>
+          <Button type="primary" onClick={onLogout} style={{ minWidth: 80 }}>
             Logout
           </Button>
         )}

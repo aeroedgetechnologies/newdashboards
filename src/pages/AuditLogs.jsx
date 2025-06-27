@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Tag, Spin, message } from 'antd';
-import axios from 'axios';
-import { getToken } from '../utils/auth';
+import axiosInstance from '../utils/axiosInstance';
 
 const AuditLogs = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mobile, setMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://h-x6ti.onrender.com/api/admin/audit-logs', {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      const res = await axiosInstance.get('/admin/audit-logs');
       setData(res.data);
     } catch {
       message.error('Failed to fetch audit logs');
@@ -33,7 +41,30 @@ const AuditLogs = () => {
 
   if (loading) return <Spin />;
 
-  return <Table rowKey="_id" columns={columns} dataSource={data} />;
+  return (
+    <div style={{ padding: mobile ? '8px' : '20px' }}>
+      <div style={{ 
+        overflowX: 'auto', 
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: 8,
+        border: '1px solid #f0f0f0'
+      }}>
+        <Table 
+          rowKey="_id" 
+          columns={columns} 
+          dataSource={data}
+          scroll={{ x: mobile ? 800 : undefined }}
+          size={mobile ? 'small' : 'default'}
+          pagination={{
+            size: mobile ? 'small' : 'default',
+            showSizeChanger: !mobile,
+            showQuickJumper: !mobile
+          }}
+          style={{ minWidth: mobile ? 800 : 'auto' }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default AuditLogs; 

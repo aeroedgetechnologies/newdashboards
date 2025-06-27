@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, message, Tag, Spin, Input, Drawer } from 'antd';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { getToken } from '../utils/auth';
 import { exportToExcel } from '../utils/export';
 
@@ -12,33 +12,36 @@ const Users = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10 });
   const [selectedUser, setSelectedUser] = useState(null);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [mobile, setMobile] = useState(false);
 
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const token = getToken();
-    console.log('Sending token:', token);  // Log token here
-
-    const res = await axios.get('https://h-x6ti.onrender.com/api/admin/users', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setData(res.data);
-  } catch (error) {
-    console.error('Fetch error:', error.response?.data || error.message);
-    message.error('Failed to fetch users');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.get('/admin/users');
+      setData(res.data);
+    } catch (error) {
+      console.error('Fetch error:', error.response?.data || error.message);
+      message.error('Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => { fetchData(); }, []);
 
+  // Mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleBlock = async (id) => {
     try {
-      await axios.post(`https://h-x6ti.onrender.com/api/admin/users/${id}/block`, {}, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      await axiosInstance.post(`/admin/users/${id}/block`);
       message.success('User status updated');
       fetchData();
     } catch {
@@ -91,28 +94,51 @@ const fetchData = async () => {
   if (loading) return <Spin />;
 
   return (
-    <>
-      <Button onClick={() => exportToExcel(filteredData, 'users.xlsx')} style={{ marginBottom: 16, marginLeft: 16 }}>Export to Excel</Button>
-      <Input.Search
-        placeholder="Search by name or email"
-        value={searchText}
-        onChange={e => setSearchText(e.target.value)}
-        style={{ width: 300, marginBottom: 16 }}
-      />
-      <Table
-        rowKey="_id"
-        columns={columns}
-        dataSource={filteredData}
-        pagination={{ ...pagination, total: filteredData.length }}
-        onChange={handleTableChange}
-        onRow={onRow}
-      />
+    <div style={{ padding: mobile ? '8px' : '20px' }}>
+      <div style={{ marginBottom: 16, display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: 8 }}>
+        <Button 
+          onClick={() => exportToExcel(filteredData, 'users.xlsx')} 
+          style={{ marginBottom: mobile ? 8 : 0 }}
+        >
+          Export to Excel
+        </Button>
+        <Input.Search
+          placeholder="Search by name or email"
+          value={searchText}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: mobile ? '100%' : 300 }}
+        />
+      </div>
+      <div style={{ 
+        overflowX: 'auto', 
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: 8,
+        border: '1px solid #f0f0f0'
+      }}>
+        <Table
+          rowKey="_id"
+          columns={columns}
+          dataSource={filteredData}
+          pagination={{ 
+            ...pagination, 
+            total: filteredData.length,
+            size: mobile ? 'small' : 'default',
+            showSizeChanger: !mobile,
+            showQuickJumper: !mobile
+          }}
+          onChange={handleTableChange}
+          onRow={onRow}
+          scroll={{ x: mobile ? 600 : undefined }}
+          size={mobile ? 'small' : 'default'}
+          style={{ minWidth: mobile ? 600 : 'auto' }}
+        />
+      </div>
       <Drawer
         title={selectedUser?.name}
         placement="right"
         onClose={() => setDrawerVisible(false)}
         visible={drawerVisible}
-        width={350}
+        width={mobile ? '100%' : 350}
       >
         {selectedUser && (
           <>
@@ -129,7 +155,7 @@ const fetchData = async () => {
           </>
         )}
       </Drawer>
-    </>
+    </div>
   );
 };
 

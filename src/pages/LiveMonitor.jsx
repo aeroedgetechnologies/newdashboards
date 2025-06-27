@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, message, Spin, Tag } from 'antd';
-import axios from 'axios';
-import { getToken } from '../utils/auth';
+import axiosInstance from '../utils/axiosInstance';
 
 const LiveMonitor = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mobile, setMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://h-x6ti.onrender.com/api/live/active', {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      const res = await axiosInstance.get('/live/active');
       setData(res.data);
     } catch {
       message.error('Failed to fetch live streams');
@@ -25,9 +33,7 @@ const LiveMonitor = () => {
 
   const handleForceStop = async (id) => {
     try {
-      await axios.post(`https://h-x6ti.onrender.com/api/live/admin/${id}/reject`, {}, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      await axiosInstance.post(`/live/admin/${id}/reject`);
       message.success('Stream force-stopped');
       fetchData();
     } catch {
@@ -47,7 +53,30 @@ const LiveMonitor = () => {
 
   if (loading) return <Spin />;
 
-  return <Table rowKey="_id" columns={columns} dataSource={data} />;
+  return (
+    <div style={{ padding: mobile ? '8px' : '20px' }}>
+      <div style={{ 
+        overflowX: 'auto', 
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: 8,
+        border: '1px solid #f0f0f0'
+      }}>
+        <Table 
+          rowKey="_id" 
+          columns={columns} 
+          dataSource={data}
+          scroll={{ x: mobile ? 600 : undefined }}
+          size={mobile ? 'small' : 'default'}
+          pagination={{
+            size: mobile ? 'small' : 'default',
+            showSizeChanger: !mobile,
+            showQuickJumper: !mobile
+          }}
+          style={{ minWidth: mobile ? 600 : 'auto' }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default LiveMonitor; 

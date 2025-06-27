@@ -1,19 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, message, Tag, Spin } from 'antd';
-import axios from 'axios';
-import { getToken } from '../utils/auth';
+import axiosInstance from '../utils/axiosInstance';
 import { exportToExcel } from '../utils/export';
 
 const WalletRequests = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mobile, setMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('https://h-x6ti.onrender.com/api/admin/wallet-requests', {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      const res = await axiosInstance.get('/admin/wallet-requests');
       setData(res.data);
     } catch {
       message.error('Failed to fetch wallet requests');
@@ -26,9 +34,7 @@ const WalletRequests = () => {
 
   const handleAction = async (id, action) => {
     try {
-      await axios.post(`https://h-x6ti.onrender.com/api/admin/wallet-requests/${id}/${action}`, {}, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
+      await axiosInstance.post(`/admin/wallet-requests/${id}/${action}`);
       message.success(`Request ${action}d`);
       fetchData();
     } catch {
@@ -46,7 +52,7 @@ const WalletRequests = () => {
     ) },
     { title: 'Actions', key: 'actions', render: (_, record) => (
       <>
-        <Button type="primary" onClick={() => handleAction(record._id, 'approve')} style={{ marginRight: 8 }}>Approve</Button>
+        <Button type="primary" onClick={() => handleAction(record._id, 'approve')} style={{ marginRight: 8, marginBottom: mobile ? 4 : 0 }}>Approve</Button>
         <Button danger onClick={() => handleAction(record._id, 'reject')}>Reject</Button>
       </>
     ) },
@@ -55,10 +61,34 @@ const WalletRequests = () => {
   if (loading) return <Spin />;
 
   return (
-    <>
-      <Button onClick={() => exportToExcel(data, 'wallet_requests.xlsx')} style={{ marginBottom: 16 }}>Export to Excel</Button>
-      <Table rowKey="_id" columns={columns} dataSource={data} />
-    </>
+    <div style={{ padding: mobile ? '8px' : '20px' }}>
+      <Button 
+        onClick={() => exportToExcel(data, 'wallet_requests.xlsx')} 
+        style={{ marginBottom: 16 }}
+      >
+        Export to Excel
+      </Button>
+      <div style={{ 
+        overflowX: 'auto', 
+        WebkitOverflowScrolling: 'touch',
+        borderRadius: 8,
+        border: '1px solid #f0f0f0'
+      }}>
+        <Table 
+          rowKey="_id" 
+          columns={columns} 
+          dataSource={data}
+          scroll={{ x: mobile ? 700 : undefined }}
+          size={mobile ? 'small' : 'default'}
+          pagination={{
+            size: mobile ? 'small' : 'default',
+            showSizeChanger: !mobile,
+            showQuickJumper: !mobile
+          }}
+          style={{ minWidth: mobile ? 700 : 'auto' }}
+        />
+      </div>
+    </div>
   );
 };
 

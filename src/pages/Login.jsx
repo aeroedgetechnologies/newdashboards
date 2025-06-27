@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { setToken } from '../utils/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ const Login = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const res = await axios.post('https://h-x6ti.onrender.com/api/admin/login', values);
+      const res = await axiosInstance.post('/admin/login', values);
       setToken(res.data.token);
       message.success('Login successful!');
       navigate('/');
