@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout, Menu } from 'antd';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
@@ -17,10 +17,32 @@ import { BrowserRouter } from 'react-router-dom';
 const { Header, Content, Sider } = Layout;
 
 const App = () => {
+  const [collapsed, setCollapsed] = useState(window.innerWidth < 768);
+  const [mobile, setMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      setMobile(isMobile);
+      setCollapsed(isMobile);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        breakpoint="md"
+        collapsedWidth={mobile ? 0 : 80}
+        trigger={null}
+        style={{ position: mobile ? 'fixed' : 'relative', zIndex: 1001, height: '100vh', left: 0, top: 0 }}
+        width={200}
+      >
         <Menu theme="dark" mode="inline" defaultSelectedKeys={['dashboard']}>
           <Menu.Item key="dashboard">
             <Link to="/">Dashboard</Link>
@@ -45,8 +67,8 @@ const App = () => {
           </Menu.Item>
         </Menu>
       </Sider>
-      <Layout>
-        <HeaderBar />
+      <Layout style={{ marginLeft: mobile && !collapsed ? 200 : 0, transition: 'margin-left 0.2s' }}>
+        <HeaderBar onToggleSidebar={() => setCollapsed(!collapsed)} mobile={mobile} />
         <Content style={{ margin: '16px' }}>
           <Routes>
             <Route path="/login" element={<Login />} />
